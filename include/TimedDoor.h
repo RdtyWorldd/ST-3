@@ -3,6 +3,12 @@
 #ifndef INCLUDE_TIMEDDOOR_H_
 #define INCLUDE_TIMEDDOOR_H_
 
+#include <mutex>
+#include <condition_variable>
+#include <atomic>
+#include <memory>
+#include <thread>
+
 class DoorTimerAdapter;
 class Timer;
 class Door;
@@ -11,6 +17,19 @@ class TimedDoor;
 class TimerClient {
  public:
   virtual void Timeout() = 0;
+};
+
+class Timer {
+  TimerClient *client;
+  void sleep(int);
+
+  std::mutex mut;
+  std::atomic<bool> started;
+  std::condition_variable cv;
+  std::unique_ptr<std::thread> worker;
+ public:
+  void tregister(int, TimerClient*);
+  void stop();
 };
 
 class Door {
@@ -33,20 +52,14 @@ class TimedDoor : public Door {
   DoorTimerAdapter * adapter;
   int iTimeout;
   bool isOpened;
+  Timer timer;
  public:
   explicit TimedDoor(int);
   bool isDoorOpened();
   void unlock();
   void lock();
   int  getTimeOut() const;
-  void throwState();
-};
-
-class Timer {
-  TimerClient *client;
-  void sleep(int);
- public:
-  void tregister(int, TimerClient*);
+  virtual void throwState();
 };
 
 #endif  // INCLUDE_TIMEDDOOR_H_
