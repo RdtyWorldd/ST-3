@@ -4,7 +4,7 @@
 #include <thread>
 #include <chrono>
 #include <stdexcept>
-#include <memory.h>
+#include <memory>
 
 // ================= DoorTimerAdapter =================
 
@@ -73,12 +73,10 @@ void Timer::tregister(int timeout, TimerClient* client) {
         client->Timeout();
     });
 
-    cv.wait(uniq_lock, 
-        [this] 
-        { 
-            return this->started.load(std::memory_order::memory_order_relaxed); 
-        }
-    );
+    cv.wait(uniq_lock,
+        [this] {
+            return this->started.load(std::memory_order::memory_order_relaxed);
+        });
 }
 
 void Timer::stop() {

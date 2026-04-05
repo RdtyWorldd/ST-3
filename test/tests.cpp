@@ -135,8 +135,7 @@ TEST(DoorTimerAdapterTest, CallsThrowStateIfDoorUnlocked) {
 
     door.unlock();
     std::this_thread::sleep_for(
-        std::chrono::milliseconds(door.getTimeOut() + 10)
-    );
+        std::chrono::milliseconds(door.getTimeOut() + 10));
     door.lock();
 }
 
