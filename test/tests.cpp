@@ -1,3 +1,5 @@
+// Copyright 2021 GHA Test Team
+
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
 #include <thread>
@@ -10,13 +12,13 @@ using ::testing::AtLeast;
 using ::testing::InSequence;
 
 class MockTimerClient : public TimerClient {
-public:
+ public:
     MOCK_METHOD(void, Timeout, (), (override));
 };
 
 class MockTimedDoor : public TimedDoor {
-public:
-    MockTimedDoor(int timeout) : TimedDoor(timeout) {}
+ public:
+    explicit MockTimedDoor(int timeout) : TimedDoor(timeout) {}
 
     MOCK_METHOD(bool, isDoorOpened, (), (override));
     MOCK_METHOD(void, throwState, (), (override));
@@ -24,7 +26,7 @@ public:
 
 
 class TimedDoorTest : public ::testing::Test {
-protected:
+ protected:
     TimedDoor* door;
 
     void SetUp() override {
@@ -132,7 +134,9 @@ TEST(DoorTimerAdapterTest, CallsThrowStateIfDoorUnlocked) {
         .Times(1);
 
     door.unlock();
-    std::this_thread::sleep_for(std::chrono::milliseconds(door.getTimeOut() + 10));
+    std::this_thread::sleep_for(
+        std::chrono::milliseconds(door.getTimeOut() + 10)
+    );
     door.lock();
 }
 

@@ -1,10 +1,10 @@
 // Copyright 2021 GHA Test Team
 #include "TimedDoor.h"
 
-#include "TimedDoor.h"
 #include <thread>
 #include <chrono>
 #include <stdexcept>
+#include <memory.h>
 
 // ================= DoorTimerAdapter =================
 
@@ -56,7 +56,7 @@ void Timer::sleep(int ms) {
 }
 
 void Timer::tregister(int timeout, TimerClient* client) {
-    if(worker) {
+    if (worker) {
         throw std::runtime_error("Timer Already running");
     }
     started.store(false, std::memory_order_relaxed);
@@ -70,14 +70,18 @@ void Timer::tregister(int timeout, TimerClient* client) {
         this->cv.notify_one();
 
         sleep(timeout);
-        client->Timeout();    
+        client->Timeout();
     });
 
-    cv.wait(uniq_lock, [this] { return this->started.load(std::memory_order::memory_order_relaxed); });
+    cv.wait(uniq_lock, 
+        [this] 
+        { 
+            return this->started.load(std::memory_order::memory_order_relaxed); 
+        }
+    );
 }
 
-void Timer::stop()
-{
-    if(worker->joinable())
+void Timer::stop() {
+    if (worker->joinable())
         worker->join();
 }
